@@ -2,7 +2,12 @@
 
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
+var MAIN_PIN_WIDTH = 65;
+var MAIN_PIN_HEIGHT = 65;
+var MAIN_PIN_AFTER_HEIGHT = 18;
 var PIN_NUMBER = 8;
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 var PROPERTY_TITLE = 'Заголовок';
 var PROPERTY_ADDRESS = 'Адрес предложения';
 var PROPERTY_DESCRIPTION = 'Строка';
@@ -32,10 +37,74 @@ var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditio
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
 var template = document.querySelector('#pin').content.querySelector('.map__pin');
-
 var pinSection = document.querySelector('.map__pins');
-
 var templateCard = document.querySelector('#card').content.querySelector('.map__card');
+var mapSection = document.querySelector('.map');
+var pinMain = document.querySelector('.map__pin--main');
+
+var adForm = document.querySelector('.ad-form');
+var adFormFieldsets = adForm.querySelectorAll('.ad-form__element');
+var adFormHeader = adForm.querySelector('.ad-form-header');
+var adFormTitle = adForm.querySelector('#title');
+var adFormPrice = adForm.querySelector('#price');
+var adFormAddress = adForm.querySelector('#address');
+var adFormRooms = adForm.querySelector('#room_number');
+var adFormGuests = adForm.querySelector('#capacity');
+var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
+
+var matchRoomNumber = function (evt) {
+  evt.preventDefault();
+  adFormGuests.disabled = false;
+  for (var o = 0; o < adFormGuestsOptions.length; o++) {
+    if (evt.target.value < adFormGuestsOptions[o].value) {
+      adFormGuests.value = evt.target.value;
+      adFormGuestsOptions[o].disabled = true;
+    } else {
+      adFormGuestsOptions[o].disabled = false;
+    }
+  }
+  if (evt.target.value === '100') {
+    adFormGuests.value = 0;
+    adFormGuests.disabled = true;
+  }
+};
+
+var matchGuestNumber = function (evt) {
+  evt.preventDefault();
+  if (evt.target.value === '0') {
+    adFormRooms.value = 100;
+    adFormGuests.disabled = true;
+  }
+};
+
+adFormRooms.addEventListener('change', matchRoomNumber);
+adFormGuests.addEventListener('change', matchGuestNumber);
+
+adFormAddress.value = Math.floor(pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + MAIN_PIN_HEIGHT / 2);
+
+adFormHeader.disabled = true;
+
+for (var f = 0; f < adFormFieldsets.length; f++) {
+  adFormFieldsets[f].disabled = true;
+}
+
+var activateWindow = function (evt) {
+  if (evt.which === 1 || evt.keyCode === ENTER_KEYCODE) {
+    mapSection.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    adFormHeader.disabled = false;
+    for (var n = 0; n < adFormFieldsets.length; n++) {
+      adFormFieldsets[n].disabled = false;
+    }
+    adFormAddress.value = Math.floor(pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + (MAIN_PIN_HEIGHT + MAIN_PIN_AFTER_HEIGHT));
+  }
+  pinMain.removeEventListener('mousedown', activateWindow);
+  pinMain.removeEventListener('keydown', activateWindow);
+};
+
+pinMain.addEventListener('mousedown', activateWindow);
+
+pinMain.addEventListener('keydown', activateWindow);
 
 var createProperty = function (i) {
   return {
@@ -45,10 +114,10 @@ var createProperty = function (i) {
     offer: {
       title: PROPERTY_TITLE,
       address: PROPERTY_ADDRESS,
-      price: getRandomInteger(10000, 100000),
+      price: getRandomInteger(0, 1000000),
       type: TYPES[getRandomInteger(0, (TYPES.length - 1))],
       rooms: getRandomInteger(1, 3),
-      guests: getRandomInteger(1, 5),
+      guests: getRandomInteger(1, 3),
       checkin: CHECKIN_TIMES[getRandomInteger(0, (CHECKIN_TIMES.length - 1))],
       checkout: CHECKOUT_TIMES[getRandomInteger(0, (CHECKOUT_TIMES.length - 1))],
       features: getRandomFeatures(getRandomInteger(0, FEATURES.length)),
@@ -121,12 +190,11 @@ var renderPins = function (pins) {
   return fragment;
 };
 
-var mapSection = document.querySelector('.map');
-
-mapSection.classList.remove('map--faded');
-
+/* Отрисовка пинов
 pinSection.appendChild(renderPins(generatePins()));
+*/
 
+/* Отрисовка карточки
 var newCard = templateCard.cloneNode(true);
 
 var createPropertyCard = function (generatedPin) {
@@ -226,3 +294,4 @@ var filtersContainer = document.querySelector('.map__filters-container');
 var pins = generatePins();
 
 mapSection.insertBefore(createPropertyCard(pins[0]), filtersContainer);
+*/
