@@ -97,6 +97,7 @@ var activateWindow = function (evt) {
       adFormFieldsets[n].disabled = false;
     }
     adFormAddress.value = Math.floor(pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + (MAIN_PIN_HEIGHT + MAIN_PIN_AFTER_HEIGHT));
+    pinSection.appendChild(renderPins(generatePins()));
   }
   pinMain.removeEventListener('mousedown', activateWindow);
   pinMain.removeEventListener('keydown', activateWindow);
@@ -189,10 +190,6 @@ var renderPins = function (pins) {
   }
   return fragment;
 };
-
-/* Отрисовка пинов
-pinSection.appendChild(renderPins(generatePins()));
-*/
 
 /* Отрисовка карточки
 var newCard = templateCard.cloneNode(true);
