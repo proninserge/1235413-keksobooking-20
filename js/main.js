@@ -88,16 +88,17 @@ disabledFormElements();
 
 var onRoomNumberSelection = function (evt) {
   evt.preventDefault();
+  var targetValue = Number(evt.target.value);
   adFormGuests.disabled = false;
   for (var o = 0; o < adFormGuestsOptions.length; o++) {
-    if (evt.target.value < adFormGuestsOptions[o].value) {
-      adFormGuests.value = evt.target.value;
+    if (targetValue < adFormGuestsOptions[o].value) {
+      adFormGuests.value = targetValue;
       adFormGuestsOptions[o].disabled = true;
     } else {
       adFormGuestsOptions[o].disabled = false;
     }
   }
-  if (evt.target.value === String(RoomAndGuestValues.MAX_VALUE)) {
+  if (targetValue === RoomAndGuestValues.MAX_VALUE) {
     adFormGuests.value = RoomAndGuestValues.MIN_VALUE;
     adFormGuests.disabled = true;
   }
@@ -105,25 +106,10 @@ var onRoomNumberSelection = function (evt) {
 
 var onGuestNumberSelection = function (evt) {
   evt.preventDefault();
-  if (evt.target.value === String(RoomAndGuestValues.MIN_VALUE)) {
+  var targetValue = Number(evt.target.value);
+  if (targetValue === RoomAndGuestValues.MIN_VALUE) {
     adFormRooms.value = RoomAndGuestValues.MAX_VALUE;
     adFormGuests.disabled = true;
-  }
-};
-
-var onPriceInput = function (evt) {
-  evt.preventDefault();
-  var value = Number(adFormPrice.value);
-  if (value > 1000000) {
-    adFormPrice.setCustomValidity('Введите числовое значение менее 1 000 000');
-  } else if (adFormPrice.placeholder === '1000' && value < 1000) {
-    adFormPrice.setCustomValidity('Введите числовое значение более 1 000');
-  } else if (adFormPrice.placeholder === '5000' && value < 5000) {
-    adFormPrice.setCustomValidity('Введите числовое значение более 5 000');
-  } else if (adFormPrice.placeholder === '10000' && value < 10000) {
-    adFormPrice.setCustomValidity('Введите числовое значение более 10 000');
-  } else {
-    adFormPrice.setCustomValidity('');
   }
 };
 
@@ -135,12 +121,15 @@ var onTypeChange = function (evt) {
   } else if (adFormType.value === 'flat') {
     adFormPrice.placeholder = '1000';
     adFormPrice.value = '';
+    adFormPrice.min = 1000;
   } else if (adFormType.value === 'house') {
     adFormPrice.placeholder = '5000';
     adFormPrice.value = '';
+    adFormPrice.min = 5000;
   } else if (adFormType.value === 'palace') {
     adFormPrice.placeholder = '10000';
     adFormPrice.value = '';
+    adFormPrice.min = 10000;
   }
 };
 
@@ -164,7 +153,6 @@ var onWindowActivation = function (evt) {
 
 adFormRooms.addEventListener('change', onRoomNumberSelection);
 adFormGuests.addEventListener('change', onGuestNumberSelection);
-adFormPrice.addEventListener('input', onPriceInput);
 adFormType.addEventListener('change', onTypeChange);
 adFormTime.addEventListener('change', onCheckTimeChange);
 
@@ -234,6 +222,8 @@ var createNewLocation = function (pin) {
   var newLocation = template.cloneNode(true);
   newLocation.style.left = (pin.location.x - PIN_WIDTH / 2) + 'px';
   newLocation.style.top = (pin.location.y - PIN_HEIGHT) + 'px';
+  newLocation.dataset.id = Number(pin.author.avatar.substr(-5, 1)) - 1;
+  newLocation.children[0].dataset.id = newLocation.dataset.id;
   newLocation.children[0].src = pin.author.avatar;
   newLocation.children[0].alt = pin.offer.title;
   return newLocation;
@@ -258,7 +248,7 @@ var renderPins = function (pins) {
 /* Отрисовка карточки */
 var newCard = templateCard.cloneNode(true);
 
-var createPropertyCard = function (generatedPin) {
+var createPropertyCardTemplate = function (generatedPin) {
 
   if (generatedPin.author.avatar) {
     newCard.querySelector('.popup__avatar').src = generatedPin.author.avatar;
@@ -362,27 +352,31 @@ var renderCardPhotos = function (generatedPin) {
 var filtersContainer = document.querySelector('.map__filters-container');
 var pins = generatePins();
 
+
+var createPropertyCard = function (evt) {
+  var source = Number(evt.target.dataset.id);
+  for (var p = 0; p < pins.length; p++) {
+    if (source === p) {
+      mapSection.insertBefore(createPropertyCardTemplate(pins[p]), filtersContainer);
+      var popup = createPropertyCardTemplate(pins[p]);
+      var close = popup.querySelector('.popup__close');
+      var closeCard = function (e) {
+        if (e.which === 1 || e.keyCode === ESC_KEYCODE) {
+          popup.remove();
+          close.removeEventListener('click', closeCard);
+          document.removeEventListener('keydown', closeCard);
+        }
+      };
+      close.addEventListener('click', closeCard);
+      document.addEventListener('keydown', closeCard);
+    }
+  }
+};
+
 var onPinClick = function (evt) {
   if (evt.which === 1 || evt.keyCode === ENTER_KEYCODE) {
     evt.preventDefault();
-    var source = evt.target.src || evt.target.firstChild.src;
-    for (var p = 0; p < pins.length; p++) {
-      var target = pins[p].author.avatar;
-      if (source.substr(-5, 5) === target.substr(-5, 5)) {
-        mapSection.insertBefore(createPropertyCard(pins[p]), filtersContainer);
-        var popup = createPropertyCard(pins[p]);
-        var close = popup.querySelector('.popup__close');
-        var closeCard = function (e) {
-          if (e.which === 1 || e.keyCode === ESC_KEYCODE) {
-            popup.remove();
-            close.removeEventListener('click', closeCard);
-            document.removeEventListener('keydown', closeCard);
-          }
-        };
-        close.addEventListener('click', closeCard);
-        document.addEventListener('keydown', closeCard);
-      }
-    }
+    createPropertyCard(evt);
   }
 };
 
