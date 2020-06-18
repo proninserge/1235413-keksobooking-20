@@ -103,6 +103,9 @@
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
+    MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
+    MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
+    MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
   };
