@@ -34,42 +34,26 @@
       offer: {
         title: PROPERTY_TITLE,
         address: PROPERTY_ADDRESS,
-        price: getRandomInteger(0, 1000000),
-        type: TYPES[getRandomInteger(0, (TYPES.length - 1))],
-        rooms: getRandomInteger(1, 3),
-        guests: getRandomInteger(1, 3),
-        checkin: CHECKIN_TIMES[getRandomInteger(0, (CHECKIN_TIMES.length - 1))],
-        checkout: CHECKOUT_TIMES[getRandomInteger(0, (CHECKOUT_TIMES.length - 1))],
-        features: getRandomFeatures(getRandomInteger(0, FEATURES.length)),
+        price: window.utils.getRandomInteger(0, 1000000),
+        type: TYPES[window.utils.getRandomInteger(0, (TYPES.length - 1))],
+        rooms: window.utils.getRandomInteger(1, 3),
+        guests: window.utils.getRandomInteger(1, 3),
+        checkin: CHECKIN_TIMES[window.utils.getRandomInteger(0, (CHECKIN_TIMES.length - 1))],
+        checkout: CHECKOUT_TIMES[window.utils.getRandomInteger(0, (CHECKOUT_TIMES.length - 1))],
+        features: getRandomFeatures(window.utils.getRandomInteger(0, FEATURES.length)),
         description: PROPERTY_DESCRIPTION,
-        photos: getRandomPhotos(getRandomInteger(0, PHOTOS.length))
+        photos: getRandomPhotos(window.utils.getRandomInteger(0, PHOTOS.length))
       },
       location: {
-        x: getRandomInteger(0, 1200),
-        y: getRandomInteger(130, 630)
+        x: window.utils.getRandomInteger(0, 1200),
+        y: window.utils.getRandomInteger(130, 630)
       }
     };
   };
 
-  var getRandomInteger = function (min, max) {
-    var rand = min + Math.random() * (max + 1 - min);
-    return Math.floor(rand);
-  };
-
-  var shuffleArray = function (array) {
-    var result = array.slice();
-    for (var m = result.length - 1; m > 0; m--) {
-      var j = Math.floor(Math.random() * (m + 1));
-      var temp = result[m];
-      result[m] = result[j];
-      result[j] = temp;
-    }
-    return result;
-  };
-
   var getRandomFeatures = function (count) {
     var randomFeatures = [];
-    var shuffledFeatures = shuffleArray(FEATURES);
+    var shuffledFeatures = window.utils.shuffleArray(FEATURES);
     for (var j = 0; j < count; j++) {
       randomFeatures.push(shuffledFeatures[j]);
     }
@@ -78,7 +62,7 @@
 
   var getRandomPhotos = function (count) {
     var randomPhotos = [];
-    var shuffledPhotos = shuffleArray(PHOTOS);
+    var shuffledPhotos = window.utils.shuffleArray(PHOTOS);
     for (var j = 0; j < count; j++) {
       randomPhotos.push(shuffledPhotos[j]);
     }

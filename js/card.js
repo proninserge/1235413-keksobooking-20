@@ -7,9 +7,9 @@
 
   var templateCard = document.querySelector('#card').content.querySelector('.map__card');
 
-  var newCard = templateCard.cloneNode(true);
-
   var createPropertyCardTemplate = function (generatedPin) {
+    var card = document.querySelector('.map__card');
+    var newCard = card || templateCard.cloneNode(true);
 
     if (generatedPin.author.avatar) {
       newCard.querySelector('.popup__avatar').src = generatedPin.author.avatar;
@@ -54,9 +54,9 @@
     }
 
 
-    renderCardFeatures(generatedPin);
+    renderCardFeatures(newCard, generatedPin);
 
-    renderCardPhotos(generatedPin);
+    renderCardPhotos(newCard, generatedPin);
 
     if (generatedPin.offer.description) {
       newCard.querySelector('.popup__description').textContent = generatedPin.offer.description;
@@ -68,7 +68,7 @@
     return newCard;
   };
 
-  var renderCardFeatures = function (generatedPin) {
+  var renderCardFeatures = function (newCard, generatedPin) {
     var featuresList = newCard.querySelector('.popup__features');
     featuresList.innerHTML = '';
     var features = generatedPin.offer.features;
@@ -88,7 +88,7 @@
     return featuresList;
   };
 
-  var renderCardPhotos = function (generatedPin) {
+  var renderCardPhotos = function (newCard, generatedPin) {
     var photosList = newCard.querySelector('.popup__photos');
     photosList.innerHTML = '';
     var photos = generatedPin.offer.photos;

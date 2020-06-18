@@ -5,14 +5,12 @@
   var MAIN_PIN_HEIGHT = 65;
   var MAIN_PIN_AFTER_HEIGHT = 18;
 
-  var pinMain = document.querySelector('.map__pin--main');
-
   var RoomAndGuestValues = {
     MIN_VALUE: 0,
     MAX_VALUE: 100
   };
 
-  var typeAndPrice = {
+  var ApartmentsTypes = {
     BUNGALO: 0,
     FLAT: 1000,
     HOUSE: 5000,
@@ -33,11 +31,11 @@
   var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
 
   var setAddressValue = function () {
-    adFormAddress.value = Math.floor(pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + MAIN_PIN_HEIGHT / 2);
+    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + MAIN_PIN_HEIGHT / 2);
   };
 
   var setPinAddressValue = function () {
-    adFormAddress.value = Math.floor(pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + (MAIN_PIN_HEIGHT + MAIN_PIN_AFTER_HEIGHT));
+    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + (MAIN_PIN_HEIGHT + MAIN_PIN_AFTER_HEIGHT));
   };
 
   var disabledFormElements = function () {
@@ -87,7 +85,7 @@
 
   var onTypeChange = function (evt) {
     evt.preventDefault();
-    var minPrice = typeAndPrice[evt.target.value.toUpperCase()];
+    var minPrice = ApartmentsTypes[evt.target.value.toUpperCase()];
     adFormPrice.min = minPrice;
     adFormPrice.value = '';
     adFormPrice.placeholder = String(minPrice);
@@ -105,7 +103,6 @@
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
-    pinMain: pinMain,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
   };

@@ -6,15 +6,14 @@
   var LEFT_KEY = 1;
 
   var mapSection = document.querySelector('.map');
+  var pinMain = document.querySelector('.map__pin--main');
   var pinSection = document.querySelector('.map__pins');
   var filtersContainer = document.querySelector('.map__filters-container');
 
-  var renderPins = function (pins) {
-    var fragment = document.createDocumentFragment();
-    for (var i = 0; i < pins.length; i++) {
-      fragment.appendChild(window.pin.createNewLocation(pins[i]));
-    }
-    return fragment;
+  var createCardOnFirstLoad = function () {
+    var popup = window.card.createPropertyCardTemplate(window.data.pins[0]);
+    popup.classList.add('hidden');
+    mapSection.insertBefore(popup, filtersContainer);
   };
 
   var onWindowActivation = function (evt) {
@@ -23,13 +22,11 @@
       mapSection.classList.remove('map--faded');
       window.form.enableFormElements();
       window.form.setPinAddressValue();
-      pinSection.appendChild(renderPins(window.data.pins));
-      mapSection.insertBefore(window.card.createPropertyCardTemplate(window.data.pins[0]), filtersContainer);
-      var popup = window.card.createPropertyCardTemplate(window.data.pins[0]);
-      popup.classList.add('hidden');
+      pinSection.appendChild(window.pin.renderPins(window.data.pins));
+      createCardOnFirstLoad();
     }
-    window.form.pinMain.removeEventListener('mousedown', onWindowActivation);
-    window.form.pinMain.removeEventListener('keydown', onWindowActivation);
+    pinMain.removeEventListener('mousedown', onWindowActivation);
+    pinMain.removeEventListener('keydown', onWindowActivation);
   };
 
   var createPropertyCard = function (evt) {
@@ -61,6 +58,10 @@
   mapSection.addEventListener('click', onPinClick);
   mapSection.addEventListener('keydown', onPinClick);
 
-  window.form.pinMain.addEventListener('mousedown', onWindowActivation);
-  window.form.pinMain.addEventListener('keydown', onWindowActivation);
+  pinMain.addEventListener('mousedown', onWindowActivation);
+  pinMain.addEventListener('keydown', onWindowActivation);
+
+  window.map = {
+    pinMain: pinMain
+  };
 })();

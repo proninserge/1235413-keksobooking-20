@@ -6,7 +6,7 @@
 
   var template = document.querySelector('#pin').content.querySelector('.map__pin');
 
-  var createNewLocation = function (pin) {
+  var createNewPin = function (pin) {
     var newLocation = template.cloneNode(true);
     newLocation.style.left = (pin.location.x - PIN_WIDTH / 2) + 'px';
     newLocation.style.top = (pin.location.y - PIN_HEIGHT) + 'px';
@@ -17,7 +17,15 @@
     return newLocation;
   };
 
+  var renderPins = function (pins) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < pins.length; i++) {
+      fragment.appendChild(createNewPin(pins[i]));
+    }
+    return fragment;
+  };
+
   window.pin = {
-    createNewLocation: createNewLocation
+    renderPins: renderPins
   };
 })();
