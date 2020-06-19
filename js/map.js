@@ -1,21 +1,28 @@
 'use strict';
 
 (function () {
+  var MAIN_PIN_WIDTH = 65;
+  var MAIN_PIN_HEIGHT = 65;
+  var MAIN_PIN_AFTER_HEIGHT = 16;
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
   var LEFT_KEY = 1;
-
-  var MapCoordinates = {
-    MIN_X: 0,
-    MAX_X: 1200,
-    MIN_Y: 130,
-    MAX_Y: 630
-  };
 
   var mapSection = document.querySelector('.map');
   var pinMain = document.querySelector('.map__pin--main');
   var pinSection = document.querySelector('.map__pins');
   var filtersContainer = document.querySelector('.map__filters-container');
+
+  var MapCoordinates = {
+    MIN_X: 0,
+    MAX_X: mapSection.offsetWidth,
+    MIN_Y: 130,
+    MAX_Y: 630
+  };
+
+  var setMainPinPosition = function () {
+    pinMain.style.left = (mapSection.offsetWidth / 2 - MAIN_PIN_WIDTH / 2) + 'px';
+  };
 
   var createCardOnFirstLoad = function () {
     var popup = window.card.createPropertyCardTemplate(window.data.pins[0]);
@@ -43,17 +50,12 @@
         };
         var pinX = pinMain.offsetLeft - shift.x;
         var pinY = pinMain.offsetTop - shift.y;
-        if (pinY <= (MapCoordinates.MAX_Y - window.form.MAIN_PIN_HEIGHT - window.form.MAIN_PIN_AFTER_HEIGHT) && pinY >= (MapCoordinates.MIN_Y - window.form.MAIN_PIN_HEIGHT - window.form.MAIN_PIN_AFTER_HEIGHT)) {
+        if ((pinY <= (MapCoordinates.MAX_Y - MAIN_PIN_HEIGHT - MAIN_PIN_AFTER_HEIGHT) && pinY >= (MapCoordinates.MIN_Y - MAIN_PIN_HEIGHT - MAIN_PIN_AFTER_HEIGHT)) && (pinX <= (MapCoordinates.MAX_X - MAIN_PIN_WIDTH / 2) && pinX >= (MapCoordinates.MIN_X - MAIN_PIN_WIDTH / 2))) {
           pinMain.style.top = pinY + 'px';
-        } else {
-          pinMain.removeEventListener('mousemove', onPinMove);
-        }
-        if (pinX <= (MapCoordinates.MAX_X - window.form.MAIN_PIN_WIDTH / 2) && pinX >= (MapCoordinates.MIN_X - window.form.MAIN_PIN_WIDTH / 2)) {
           pinMain.style.left = pinX + 'px';
         } else {
-          pinMain.removeEventListener('mousemove', onPinMove);
+          pinMain.removeEventListener('mousemove', onPinMove); // изменить далее по заданию
         }
-
         window.form.setPinAddressValue();
       };
 
@@ -107,6 +109,8 @@
     }
   };
 
+  setMainPinPosition();
+
   mapSection.addEventListener('click', onPinClick);
   mapSection.addEventListener('keydown', onPinClick);
 
@@ -115,6 +119,9 @@
   pinMain.addEventListener('mousedown', onPinMouseDown);
 
   window.map = {
+    MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
+    MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
+    MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     pinMain: pinMain
   };
 })();

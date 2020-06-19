@@ -1,10 +1,6 @@
 'use strict';
 
 (function () {
-  var MAIN_PIN_WIDTH = 65;
-  var MAIN_PIN_HEIGHT = 65;
-  var MAIN_PIN_AFTER_HEIGHT = 18;
-
   var RoomAndGuestValues = {
     MIN_VALUE: 0,
     MAX_VALUE: 100
@@ -31,11 +27,11 @@
   var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
 
   var setAddressValue = function () {
-    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + MAIN_PIN_HEIGHT / 2);
+    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + window.map.MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.MAIN_PIN_HEIGHT / 2);
   };
 
   var setPinAddressValue = function () {
-    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + (MAIN_PIN_HEIGHT + MAIN_PIN_AFTER_HEIGHT));
+    adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + window.map.MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + (window.map.MAIN_PIN_HEIGHT + window.map.MAIN_PIN_AFTER_HEIGHT));
   };
 
   var disabledFormElements = function () {
@@ -103,9 +99,6 @@
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
-    MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
-    MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
-    MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
   };
