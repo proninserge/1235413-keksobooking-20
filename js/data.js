@@ -77,9 +77,10 @@
     return properties;
   };
 
-  var pins = generatePins();
+  // Оставляю файл, т.к. не знаю, понадобится он или нет.
+  // var pins = generatePins();
 
-  window.data = {
+  /* window.data = {
     pins: pins
-  };
+  };*/
 })();
