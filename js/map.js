@@ -4,9 +4,6 @@
   var MAIN_PIN_WIDTH = 65;
   var MAIN_PIN_HEIGHT = 65;
   var MAIN_PIN_AFTER_HEIGHT = 16;
-  var ESC_KEYCODE = 27;
-  var ENTER_KEYCODE = 13;
-  var LEFT_KEY = 1;
 
   var mapSection = document.querySelector('.map');
   var pinMain = document.querySelector('.map__pin--main');
@@ -20,45 +17,71 @@
     MAX_Y: 630
   };
 
+  var dataPins;
+
   var createCardOnFirstLoad = function (pins) {
     var popup = window.card.createPropertyCardTemplate(pins[0]);
     popup.classList.add('hidden');
     mapSection.insertBefore(popup, filtersContainer);
   };
 
+  var activatePin = function (evt) {
+    if (evt.target.alt) {
+      evt.target.closest('.map__pin').classList.add('map__pin--active');
+    } else {
+      evt.target.classList.add('map__pin--active');
+    }
+  };
+
+  var deactivatePin = function (evt) {
+    if (evt.target.alt) {
+      evt.target.closest('.map__pin').classList.remove('map__pin--active');
+    } else {
+      evt.target.classList.remove('map__pin--active');
+    }
+  };
+
   var onError = function (message) {
-    console.error(message);
+    window.utils.createErrorMessage(message);
+  };
+
+  var createPropertyCard = function (evt) {
+    var source = Number(evt.target.dataset.id);
+    var currentPin = dataPins[source];
+    var popup = window.card.createPropertyCardTemplate(currentPin);
+    if (popup.classList.contains('hidden')) {
+      popup.classList.remove('hidden');
+    }
+    var close = popup.querySelector('.popup__close');
+    var closeCard = function (e) {
+      if (e.which === window.utils.LEFT_KEY || e.keyCode === window.utils.ESC_KEYCODE) {
+        popup.classList.add('hidden');
+        deactivatePin(evt);
+        close.removeEventListener('click', closeCard);
+        document.removeEventListener('keydown', closeCard);
+      }
+    };
+    close.addEventListener('click', closeCard);
+    document.addEventListener('keydown', closeCard);
+  };
+
+  var onPinClick = function (evt) {
+    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
+      evt.preventDefault();
+      createPropertyCard(evt);
+      for (var i = 0; i < pinSection.children.length; i++) {
+        if (pinSection.children[i].classList.contains('map__pin--active') && pinSection.children[i] !== evt.target) {
+          pinSection.children[i].classList.remove('map__pin--active');
+        }
+      }
+      activatePin(evt);
+    }
   };
 
   var onSuccess = function (pins) {
     pinSection.appendChild(window.pin.renderPins(pins));
     createCardOnFirstLoad(pins);
-    var dataPins = pins;
-    var createPropertyCard = function (evt) {
-      var source = Number(evt.target.dataset.id);
-      var currentPin = dataPins[source];
-      var popup = window.card.createPropertyCardTemplate(currentPin);
-      if (popup.classList.contains('hidden')) {
-        popup.classList.remove('hidden');
-      }
-      var close = popup.querySelector('.popup__close');
-      var closeCard = function (e) {
-        if (e.which === 1 || e.keyCode === ESC_KEYCODE) {
-          popup.classList.add('hidden');
-          close.removeEventListener('click', closeCard);
-          document.removeEventListener('keydown', closeCard);
-        }
-      };
-      close.addEventListener('click', closeCard);
-      document.addEventListener('keydown', closeCard);
-    };
-
-    var onPinClick = function (evt) {
-      if (evt.which === LEFT_KEY || evt.keyCode === ENTER_KEYCODE) {
-        evt.preventDefault();
-        createPropertyCard(evt);
-      }
-    };
+    dataPins = pins;
     mapSection.addEventListener('click', onPinClick);
     mapSection.addEventListener('keydown', onPinClick);
   };
@@ -68,7 +91,7 @@
   };
 
   var onPinMouseDown = function (evt) {
-    if (evt.which === LEFT_KEY) {
+    if (evt.which === window.utils.LEFT_KEY) {
       evt.preventDefault();
       var startCoords = {
         x: evt.clientX,
@@ -109,14 +132,12 @@
   };
 
   var onWindowActivation = function (evt) {
-    if (evt.which === LEFT_KEY || evt.keyCode === ENTER_KEYCODE) {
+    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
       evt.preventDefault();
       mapSection.classList.remove('map--faded');
       window.form.enableFormElements();
-      window.load('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
+      window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
     }
-    pinMain.removeEventListener('mousedown', onWindowActivation);
-    pinMain.removeEventListener('keydown', onWindowActivation);
   };
 
   setMainPinPosition();
@@ -129,6 +150,8 @@
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
     MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
-    pinMain: pinMain
+    pinMain: pinMain,
+    mapSection: mapSection,
+    pinSection: pinSection
   };
 })();
