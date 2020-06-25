@@ -11,7 +11,7 @@
     JSON: 'json'
   };
 
-  var HttpMethod = {
+  var HttpMethods = {
     GET: 'GET',
     POST: 'POST'
   };
@@ -38,7 +38,7 @@
 
     xhr.timeout = TIMEOUT;
 
-    xhr.open(HttpMethod.GET, url);
+    xhr.open(HttpMethods.GET, url);
     xhr.send();
   };
 
@@ -54,7 +54,7 @@
       onError();
     });
 
-    xhr.open(HttpMethod.POST, url);
+    xhr.open(HttpMethods.POST, url);
     xhr.send(data);
   };
 

@@ -19,6 +19,11 @@
 
   var dataPins;
 
+  var setAddress = function () {
+    window.map.pinMain.style.left = window.form.InitialCoords.x;
+    window.map.pinMain.style.top = window.form.InitialCoords.y;
+  };
+
   var createCardOnFirstLoad = function (pins) {
     var popup = window.card.createPropertyCardTemplate(pins[0]);
     popup.classList.add('hidden');
@@ -69,10 +74,9 @@
     if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
       evt.preventDefault();
       createPropertyCard(evt);
-      for (var i = 0; i < pinSection.children.length; i++) {
-        if (pinSection.children[i].classList.contains('map__pin--active') && pinSection.children[i] !== evt.target) {
-          pinSection.children[i].classList.remove('map__pin--active');
-        }
+      var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+      for (var i = 0; i < pins.length; i++) {
+        pins[i].classList.remove('map__pin--active');
       }
       activatePin(evt);
     }
@@ -150,6 +154,7 @@
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
     MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
+    setAddress: setAddress,
     pinMain: pinMain,
     mapSection: mapSection,
     pinSection: pinSection

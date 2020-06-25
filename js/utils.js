@@ -8,53 +8,61 @@
 
   var mainContent = document.querySelector('main');
 
-  var createErrorMessage = function (errorMessage) {
-    var errorPopup = document.querySelector('#error').content.querySelector('.error') || document.querySelector('.error');
-    errorPopup.innerHTML = '';
-    var message = document.createElement('p');
-    var closeButton = document.createElement('button');
-    message.classList.add('error__message');
-    closeButton.classList.add('error__button');
-    message.textContent = errorMessage;
-    closeButton.textContent = 'Попробовать снова';
-    errorPopup.insertAdjacentElement('afterbegin', message);
-    errorPopup.insertAdjacentElement('beforeend', closeButton);
-    mainContent.insertAdjacentElement('afterbegin', errorPopup);
-    errorPopup.classList.remove('hidden');
+  var hidePopUp = function () {
+    document.querySelector('.popup').classList.add('hidden');
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var templateSuccess = document.querySelector('#success').content.querySelector('.success');
+    var templateError = document.querySelector('#error').content.querySelector('.error');
+    var successMessage = templateSuccess.cloneNode(true);
+    var errorMessage = templateError.cloneNode(true);
+    successMessage.classList.add('hidden');
+    errorMessage.classList.add('hidden');
+    mainContent.insertAdjacentElement('afterbegin', successMessage);
+    mainContent.insertAdjacentElement('afterbegin', errorMessage);
+  });
+
+  var createSuccessMessage = function () {
+    var successPopup = document.querySelector('.success');
+    successPopup.classList.remove('hidden');
     var onPopupClick = function (evt) {
-      if (evt.which === LEFT_KEY) {
-        errorPopup.classList.add('hidden');
-        closeButton.removeEventListener('keydown', onButtonKeydown);
-      }
-    };
-    var onButtonKeydown = function (evt) {
-      if (evt.keyCode === ENTER_KEYCODE) {
-        errorPopup.classList.add('hidden');
+      if (evt.which === LEFT_KEY || evt.keyCode === ESC_KEYCODE) {
+        successPopup.classList.add('hidden');
         mainContent.removeEventListener('click', onPopupClick);
+        window.removeEventListener('keydown', onPopupClick);
       }
     };
     mainContent.addEventListener('click', onPopupClick);
-    closeButton.addEventListener('keydown', onButtonKeydown);
+    window.addEventListener('keydown', onPopupClick);
   };
 
-  var hideErrorPopup = function () {
-    createErrorMessage(ERROR);
+  var createErrorMessage = function (errorMessage) {
     var errorPopup = document.querySelector('.error');
-    errorPopup.classList.add('hidden');
+    var message = errorPopup.querySelector('.error__message');
+    var closeButton = errorPopup.querySelector('.error__button');
+    message.textContent = errorMessage;
+    errorPopup.classList.remove('hidden');
+    var onPopupClick = function (evt) {
+      if (evt.which === LEFT_KEY || evt.keyCode === ENTER_KEYCODE || evt.keyCode === ESC_KEYCODE) {
+        errorPopup.classList.add('hidden');
+        closeButton.removeEventListener('keydown', onPopupClick);
+        mainContent.removeEventListener('click', onPopupClick);
+        window.removeEventListener('keydown', onPopupClick);
+      }
+    };
+    mainContent.addEventListener('click', onPopupClick);
+    closeButton.addEventListener('keydown', onPopupClick);
+    window.addEventListener('keydown', onPopupClick);
   };
-
-  hideErrorPopup();
-
-  /* var createSuccessMessage = function () {
-    var template = document.querySelector('#success').content.querySelector('.success');
-    console.log(template);  В консоли отображается либо объект div.success, либо пустой div с классом .success, либо ОЧЕНЬ редко то, что нужно.
-  };*/
 
   window.utils = {
     ESC_KEYCODE: ESC_KEYCODE,
     ENTER_KEYCODE: ENTER_KEYCODE,
     LEFT_KEY: LEFT_KEY,
     ERROR: ERROR,
-    createErrorMessage: createErrorMessage
+    createSuccessMessage: createSuccessMessage,
+    createErrorMessage: createErrorMessage,
+    hidePopUp: hidePopUp
   };
 })();

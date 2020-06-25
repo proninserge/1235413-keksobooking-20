@@ -103,13 +103,9 @@
   };
 
   var onFormReset = function () {
-    var pins = window.map.pinSection.querySelectorAll('button[type="button"]');
-    for (var p = 0; p < pins.length; p++) {
-      window.map.pinSection.removeChild(pins[p]);
-    }
-    document.querySelector('.popup').classList.add('hidden');
-    window.map.pinMain.style.left = InitialCoords.x;
-    window.map.pinMain.style.top = InitialCoords.y;
+    window.pin.removePins();
+    window.utils.hidePopUp();
+    window.map.setAddress();
     window.map.mapSection.classList.add('map--faded');
     adForm.reset();
     setAddressValue();
@@ -122,12 +118,12 @@
 
   var onSuccess = function () {
     onFormReset();
+    window.utils.createSuccessMessage();
   };
 
   var onSubmit = function (evt) {
     window.server.upload('https://javascript.pages.academy/keksobooking', new FormData(adForm), onSuccess, onError);
     evt.preventDefault();
-    adForm.removeEventListener('submit', onSubmit);
   };
 
   adForm.addEventListener('submit', onSubmit);
@@ -139,6 +135,7 @@
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
+    InitialCoords: InitialCoords,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
   };
