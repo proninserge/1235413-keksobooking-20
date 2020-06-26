@@ -14,6 +14,7 @@
   };
 
   var adForm = document.querySelector('.ad-form');
+  var adFormReset = document.querySelector('.ad-form__reset');
   var adFormFieldsets = adForm.querySelectorAll('.ad-form__element');
   var adFormHeader = adForm.querySelector('.ad-form-header');
   var adFormPrice = adForm.querySelector('#price');
@@ -26,6 +27,11 @@
   var adFormTimeout = adForm.querySelector('#timeout');
   var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
 
+  var InitialCoords = {
+    x: window.map.pinMain.style.left,
+    y: window.map.pinMain.style.top
+  };
+
   var setAddressValue = function () {
     adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + window.map.MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.MAIN_PIN_HEIGHT / 2);
   };
@@ -35,6 +41,9 @@
   };
 
   var disabledFormElements = function () {
+    if (!adForm.classList.contains('ad-form--disabled')) {
+      adForm.classList.add('ad-form--disabled');
+    }
     adFormHeader.disabled = true;
     for (var f = 0; f < adFormFieldsets.length; f++) {
       adFormFieldsets[f].disabled = true;
@@ -93,12 +102,40 @@
     adFormTimein.value = evt.target.value;
   };
 
+  var onFormReset = function () {
+    window.pin.removePins();
+    window.utils.hidePopUp();
+    window.map.setAddress();
+    window.map.mapSection.classList.add('map--faded');
+    adForm.reset();
+    setAddressValue();
+    disabledFormElements();
+  };
+
+  var onError = function () {
+    window.utils.createErrorMessage(window.utils.ERROR);
+  };
+
+  var onSuccess = function () {
+    onFormReset();
+    window.utils.createSuccessMessage();
+  };
+
+  var onSubmit = function (evt) {
+    window.server.upload('https://javascript.pages.academy/keksobooking', new FormData(adForm), onSuccess, onError);
+    evt.preventDefault();
+  };
+
+  adForm.addEventListener('submit', onSubmit);
+  adFormReset.addEventListener('click', onFormReset);
+
   adFormRooms.addEventListener('change', onRoomNumberSelection);
   adFormGuests.addEventListener('change', onGuestNumberSelection);
   adFormType.addEventListener('change', onTypeChange);
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
+    InitialCoords: InitialCoords,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
   };

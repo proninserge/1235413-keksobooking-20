@@ -25,6 +25,13 @@
       newCard.querySelector('.popup__title').classList.add('hidden');
     }
 
+    if (generatedPin.offer.address) {
+      newCard.querySelector('.popup__text--address').textContent = generatedPin.offer.address;
+      newCard.querySelector('.popup__text--address').classList.remove('hidden');
+    } else {
+      newCard.querySelector('.popup__text--address').classList.add('hidden');
+    }
+
     if (generatedPin.offer.price) {
       newCard.querySelector('.popup__text--price').textContent = generatedPin.offer.price + '₽/ночь.';
       newCard.querySelector('.popup__text--price').classList.remove('hidden');
