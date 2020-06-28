@@ -58,36 +58,56 @@
       popup.classList.remove('hidden');
     }
     var close = popup.querySelector('.popup__close');
-    var closeCard = function (e) {
-      if (e.which === window.utils.LEFT_KEY || e.keyCode === window.utils.ESC_KEYCODE) {
-        popup.classList.add('hidden');
-        deactivatePin(evt);
-        close.removeEventListener('click', closeCard);
-        document.removeEventListener('keydown', closeCard);
-      }
+
+    var closePopup = function () {
+      popup.classList.add('hidden');
+      deactivatePin(evt);
     };
-    close.addEventListener('click', closeCard);
-    document.addEventListener('keydown', closeCard);
+
+    var onCloseClick = function (e) {
+      window.utils.onClicks(e, closePopup);
+      close.removeEventListener('click', onCloseClick);
+    };
+
+    var onCloseEsc = function (e) {
+      window.utils.onEsc(e, closePopup);
+      document.removeEventListener('keydown', onCloseClick);
+    };
+
+    close.addEventListener('click', onCloseClick);
+    document.addEventListener('keydown', onCloseEsc);
+  };
+
+  var handlePin = function (evt) {
+    evt.preventDefault();
+    createPropertyCard(evt);
+    var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+    Array.from(pins).forEach(function (pin) {
+      pin.classList.remove('map__pin--active');
+    });
+    activatePin(evt);
   };
 
   var onPinClick = function (evt) {
-    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
-      evt.preventDefault();
-      createPropertyCard(evt);
-      var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
-      for (var i = 0; i < pins.length; i++) {
-        pins[i].classList.remove('map__pin--active');
-      }
-      activatePin(evt);
+    if (evt.which === window.utils.LEFT_KEY) {
+      handlePin(evt);
+    }
+  };
+
+  var onPinEnter = function (evt) {
+    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+      handlePin(evt);
     }
   };
 
   var onSuccess = function (pins) {
     pinSection.appendChild(window.pin.renderPins(pins));
+    window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
+    window.filter.enableFiltration(pins);
     dataPins = pins;
     mapSection.addEventListener('click', onPinClick);
-    mapSection.addEventListener('keydown', onPinClick);
+    mapSection.addEventListener('keydown', onPinEnter);
   };
 
   var setMainPinPosition = function () {
@@ -135,19 +155,26 @@
     }
   };
 
-  var onWindowActivation = function (evt) {
-    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
-      evt.preventDefault();
-      mapSection.classList.remove('map--faded');
-      window.form.enableFormElements();
-      window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
-    }
+  var activateWindow = function () {
+    mapSection.classList.remove('map--faded');
+    window.form.enableFormElements();
+    window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
+  };
+
+  var onWindowClickActivation = function (evt) {
+    evt.preventDefault();
+    window.utils.onClicks(evt, activateWindow);
+  };
+
+  var onWindowEnterActivation = function (evt) {
+    evt.preventDefault();
+    window.utils.onEnter(evt, activateWindow);
   };
 
   setMainPinPosition();
 
-  pinMain.addEventListener('mousedown', onWindowActivation);
-  pinMain.addEventListener('keydown', onWindowActivation);
+  pinMain.addEventListener('mousedown', onWindowClickActivation);
+  pinMain.addEventListener('keydown', onWindowEnterActivation);
   pinMain.addEventListener('mousedown', onPinMouseDown);
 
   window.map = {

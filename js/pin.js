@@ -11,6 +11,9 @@
     newLocation.style.left = (pin.location.x - PIN_WIDTH / 2) + 'px';
     newLocation.style.top = (pin.location.y - PIN_HEIGHT) + 'px';
     newLocation.dataset.id = index;
+    newLocation.dataset.type = 0;
+    newLocation.dataset.price = 0;
+    newLocation.dataset.rooms = 0;
     newLocation.children[0].dataset.id = newLocation.dataset.id;
     newLocation.children[0].src = pin.author.avatar;
     newLocation.children[0].alt = pin.offer.title;
@@ -19,19 +22,19 @@
 
   var renderPins = function (pins) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < pins.length; i++) {
-      if (pins[i].offer) {
-        fragment.appendChild(createNewPin(pins[i], i));
+    pins.forEach(function (pin, index) {
+      if (pin.offer) {
+        fragment.appendChild(createNewPin(pin, index));
       }
-    }
+    });
     return fragment;
   };
 
   var removePins = function () {
     var pins = window.map.pinSection.querySelectorAll('button[type="button"]');
-    for (var p = 0; p < pins.length; p++) {
-      window.map.pinSection.removeChild(pins[p]);
-    }
+    pins.forEach(function (pin) {
+      window.map.pinSection.removeChild(pin);
+    });
   };
 
   window.pin = {

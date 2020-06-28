@@ -26,11 +26,14 @@
   var adFormTimein = adForm.querySelector('#timein');
   var adFormTimeout = adForm.querySelector('#timeout');
   var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
+  var filter = document.querySelector('.map__filters');
 
   var InitialCoords = {
     x: window.map.pinMain.style.left,
     y: window.map.pinMain.style.top
   };
+
+  filter.classList.add('hidden');
 
   var setAddressValue = function () {
     adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + window.map.MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.MAIN_PIN_HEIGHT / 2);
@@ -45,17 +48,17 @@
       adForm.classList.add('ad-form--disabled');
     }
     adFormHeader.disabled = true;
-    for (var f = 0; f < adFormFieldsets.length; f++) {
-      adFormFieldsets[f].disabled = true;
-    }
+    Array.from(adFormFieldsets).forEach(function (fieldset) {
+      fieldset.disabled = true;
+    });
   };
 
   var enableFormElements = function () {
     adForm.classList.remove('ad-form--disabled');
     adFormHeader.disabled = false;
-    for (var n = 0; n < adFormFieldsets.length; n++) {
-      adFormFieldsets[n].disabled = false;
-    }
+    Array.from(adFormFieldsets).forEach(function (fieldset) {
+      fieldset.disabled = false;
+    });
   };
 
   setAddressValue();
@@ -65,14 +68,14 @@
     evt.preventDefault();
     var targetValue = Number(evt.target.value);
     adFormGuests.disabled = false;
-    for (var o = 0; o < adFormGuestsOptions.length; o++) {
-      if (targetValue < adFormGuestsOptions[o].value) {
+    Array.from(adFormGuestsOptions).forEach(function (adFormGuestsOption) {
+      if (targetValue < adFormGuestsOption.value) {
         adFormGuests.value = targetValue;
-        adFormGuestsOptions[o].disabled = true;
+        adFormGuestsOption.disabled = true;
       } else {
-        adFormGuestsOptions[o].disabled = false;
+        adFormGuestsOption.disabled = false;
       }
-    }
+    });
     if (targetValue === RoomAndGuestValues.MAX_VALUE) {
       adFormGuests.value = RoomAndGuestValues.MIN_VALUE;
       adFormGuests.disabled = true;
@@ -135,6 +138,7 @@
   adFormTime.addEventListener('change', onCheckTimeChange);
 
   window.form = {
+    filter: filter,
     InitialCoords: InitialCoords,
     setPinAddressValue: setPinAddressValue,
     enableFormElements: enableFormElements
