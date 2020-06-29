@@ -11,9 +11,6 @@
     newLocation.style.left = (pin.location.x - PIN_WIDTH / 2) + 'px';
     newLocation.style.top = (pin.location.y - PIN_HEIGHT) + 'px';
     newLocation.dataset.id = index;
-    newLocation.dataset.type = 0;
-    newLocation.dataset.price = 0;
-    newLocation.dataset.rooms = 0;
     newLocation.children[0].dataset.id = newLocation.dataset.id;
     newLocation.children[0].src = pin.author.avatar;
     newLocation.children[0].alt = pin.offer.title;

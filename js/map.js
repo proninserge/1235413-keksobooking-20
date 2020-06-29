@@ -17,6 +17,8 @@
     MAX_Y: 630
   };
 
+  var pinsFilteredSet;
+
   var dataPins;
 
   var setAddress = function () {
@@ -46,6 +48,13 @@
     }
   };
 
+  var deactivatePins = function () {
+    var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+    Array.from(pins).forEach(function (pin) {
+      pin.classList.remove('map__pin--active');
+    });
+  };
+
   var onError = function (message) {
     window.utils.createErrorMessage(message);
   };
@@ -65,12 +74,12 @@
     };
 
     var onCloseClick = function (e) {
-      window.utils.onClicks(e, closePopup);
+      window.utils.onClick(e, closePopup);
       close.removeEventListener('click', onCloseClick);
     };
 
     var onCloseEsc = function (e) {
-      window.utils.onEsc(e, closePopup);
+      window.utils.onEscPress(e, closePopup);
       document.removeEventListener('keydown', onCloseClick);
     };
 
@@ -81,10 +90,7 @@
   var handlePin = function (evt) {
     evt.preventDefault();
     createPropertyCard(evt);
-    var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
-    Array.from(pins).forEach(function (pin) {
-      pin.classList.remove('map__pin--active');
-    });
+    deactivatePins();
     activatePin(evt);
   };
 
@@ -101,11 +107,11 @@
   };
 
   var onSuccess = function (pins) {
-    pinSection.appendChild(window.pin.renderPins(pins));
+    pinSection.appendChild(window.pin.renderPins(pins.slice(0, window.filter.MAX_PINS)));
     window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
     window.filter.enableFiltration(pins);
-    dataPins = pins;
+    dataPins = window.map.pinsFilteredSet;
     mapSection.addEventListener('click', onPinClick);
     mapSection.addEventListener('keydown', onPinEnter);
   };
@@ -163,12 +169,12 @@
 
   var onWindowClickActivation = function (evt) {
     evt.preventDefault();
-    window.utils.onClicks(evt, activateWindow);
+    window.utils.onClick(evt, activateWindow);
   };
 
   var onWindowEnterActivation = function (evt) {
     evt.preventDefault();
-    window.utils.onEnter(evt, activateWindow);
+    window.utils.onEnterPress(evt, activateWindow);
   };
 
   setMainPinPosition();
@@ -181,6 +187,7 @@
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
     MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
+    pinsFilteredSet: pinsFilteredSet,
     setAddress: setAddress,
     pinMain: pinMain,
     mapSection: mapSection,

@@ -5,26 +5,40 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
   var LEFT_KEY = 1;
+  var DEBOUNCE_INTERVAL = 300;
 
   var mainContent = document.querySelector('main');
+
+  var debounce = function (callback) {
+    var lastTimeout = null;
+    return function () {
+      var args = arguments;
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+      lastTimeout = window.setTimeout(function () {
+        callback.apply(null, args);
+      }, DEBOUNCE_INTERVAL);
+    };
+  };
 
   var hidePopUp = function () {
     document.querySelector('.popup').classList.add('hidden');
   };
 
-  var onClicks = function (evt, serviceFunction) {
+  var onClick = function (evt, serviceFunction) {
     if (evt.which === LEFT_KEY) {
       serviceFunction();
     }
   };
 
-  var onEsc = function (evt, serviceFunction) {
+  var onEscPress = function (evt, serviceFunction) {
     if (evt.keyCode === ESC_KEYCODE) {
       serviceFunction();
     }
   };
 
-  var onEnter = function (evt, serviceFunction) {
+  var onEnterPress = function (evt, serviceFunction) {
     if (evt.keyCode === ENTER_KEYCODE) {
       serviceFunction();
     }
@@ -50,12 +64,12 @@
     };
 
     var onPopupClick = function (evt) {
-      onClicks(evt, hideSuccessPopup);
+      onClick(evt, hideSuccessPopup);
       mainContent.removeEventListener('click', onPopupClick);
     };
 
     var onDocumentEsc = function (evt) {
-      onEsc(evt, hideSuccessPopup);
+      onEscPress(evt, hideSuccessPopup);
       document.removeEventListener('keydown', onDocumentEsc);
     };
 
@@ -75,22 +89,22 @@
     };
 
     var onCloseButtonClick = function (evt) {
-      onClicks(evt, hideErrorPopup);
+      onClick(evt, hideErrorPopup);
       closeButton.removeEventListener('click', onCloseButtonClick);
     };
 
     var onPopupClick = function (evt) {
-      onClicks(evt, hideErrorPopup);
+      onClick(evt, hideErrorPopup);
       mainContent.removeEventListener('click', onPopupClick);
     };
 
     var onCloseButtonEnter = function (evt) {
-      onEnter(evt, hideErrorPopup);
+      onEnterPress(evt, hideErrorPopup);
       closeButton.removeEventListener('keydown', onCloseButtonEnter);
     };
 
     var onDocumentEsc = function (evt) {
-      onEsc(evt, hideErrorPopup);
+      onEscPress(evt, hideErrorPopup);
       document.removeEventListener('keydown', onDocumentEsc);
     };
 
@@ -108,8 +122,9 @@
     createSuccessMessage: createSuccessMessage,
     createErrorMessage: createErrorMessage,
     hidePopUp: hidePopUp,
-    onClicks: onClicks,
-    onEnter: onEnter,
-    onEsc: onEsc
+    onClick: onClick,
+    onEnterPress: onEnterPress,
+    onEscPress: onEscPress,
+    debounce: debounce
   };
 })();

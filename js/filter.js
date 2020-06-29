@@ -3,6 +3,13 @@
 (function () {
   var MAX_PINS = 5;
 
+  var defaultFilters = {
+    TYPE: 'any',
+    PRICE: 'any',
+    ROOMS: 'any',
+    GUESTS: 'any'
+  };
+
   var PriceRange = {
     ANY: {
       MIN: 0,
@@ -25,7 +32,6 @@
     }
   };
 
-  var selects = window.form.filter.querySelectorAll('.map__filter');
   var typeSelect = window.form.filter.querySelector('#housing-type');
   var priceSelect = window.form.filter.querySelector('#housing-price');
   var roomsSelect = window.form.filter.querySelector('#housing-rooms');
@@ -33,74 +39,52 @@
   var features = window.form.filter.querySelector('#housing-features');
 
   var enableFiltration = function (pins) {
-    var renderedPins = window.map.pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+    var pinsToRender = pins.slice();
+    window.map.pinsFilteredSet = pinsToRender.slice(0, MAX_PINS);
 
-    var filterByType = function () {
-      Array.from(renderedPins).forEach(function (renderedPin, index) {
-        renderedPin.dataset.type = '0';
-        if (typeSelect.value === 'any') {
-          renderedPin.dataset.type = '0';
-        }
-        if (pins[index].offer.type === typeSelect.value) {
-          renderedPin.dataset.type = '1';
-        }
-        renderedPin.dataset.count = Number(renderedPin.dataset.price) + Number(renderedPin.dataset.type) + Number(renderedPin.dataset.rooms);
-      });
+    var getFilterType = function (pin) {
+      return pin.offer.type === typeSelect.value || typeSelect.value === defaultFilters.TYPE;
     };
-    typeSelect.addEventListener('change', filterByType);
 
-    var filterbyPrice = function () {
-      Array.from(renderedPins).forEach(function (renderedPin, index) {
-        renderedPin.dataset.price = '0';
-        if (priceSelect.value === 'any') {
-          renderedPin.dataset.price = '0';
-        }
-        var filteringPrice = PriceRange[priceSelect.value.toUpperCase()];
-        if (pins[index].offer.price >= filteringPrice.MIN && pins[index].offer.price <= filteringPrice.MAX) {
-          renderedPin.dataset.price = '1';
-        }
-        renderedPin.dataset.count = Number(renderedPin.dataset.price) + Number(renderedPin.dataset.type) + Number(renderedPin.dataset.rooms);
-      });
+    var getFilterPrice = function (pin) {
+      var filteringPrice = PriceRange[priceSelect.value.toUpperCase()];
+      return (pin.offer.price >= filteringPrice.MIN && pin.offer.price <= filteringPrice.MAX) || priceSelect.value === defaultFilters.PRICE;
     };
-    priceSelect.addEventListener('change', filterbyPrice);
 
-    var filterbyRooms = function () {
-      Array.from(renderedPins).forEach(function (renderedPin, index) {
-        renderedPin.dataset.rooms = '0';
-        if (roomsSelect.value === 'any') {
-          renderedPin.dataset.rooms = '0';
-        }
-        if (pins[index].offer.rooms === Number(roomsSelect.value)) {
-          renderedPin.dataset.rooms = '1';
-        }
-        renderedPin.dataset.count = Number(renderedPin.dataset.price) + Number(renderedPin.dataset.type) + Number(renderedPin.dataset.rooms);
-      });
+    var getFilterRooms = function (pin) {
+      return pin.offer.rooms === Number(roomsSelect.value) || roomsSelect.value === defaultFilters.ROOMS;
     };
-    roomsSelect.addEventListener('change', filterbyRooms);
 
-    var onFilter = function () {
+    var getFilterGuests = function (pin) {
+      return pin.offer.guests === Number(guestsSelect.value) || guestsSelect.value === defaultFilters.GUESTS;
+    };
+
+    var updatePins = function () {
+      var updatedPinsData = pinsToRender.filter(function (pinToRender) {
+        return getFilterType(pinToRender) && getFilterPrice(pinToRender) && getFilterRooms(pinToRender) && getFilterGuests(pinToRender);
+      });
+      updatedPinsData = updatedPinsData.slice(0, MAX_PINS);
+
+      window.map.pinsFilteredSet = updatedPinsData;
+
+      return updatedPinsData;
+    };
+
+    var onFilterChange = function () {
       window.utils.hidePopUp();
-      var times = 0;
-      Array.from(selects).forEach(function (select) {
-        if (select.value !== 'any') {
-          times++;
-        }
-      });
-      var counts = Array.from(renderedPins).map(function (it) {
-        return it.dataset.count;
-      });
-      var maxValue = Math.max.apply(null, counts);
-      Array.from(renderedPins).forEach(function (renderedPin) {
-        renderedPin.classList.add('hidden');
-        if (Number(renderedPin.dataset.count) === maxValue && maxValue === times) {
-          renderedPin.classList.remove('hidden');
-        }
-      });
+      window.pin.removePins();
+      window.pin.renderPins(updatePins()); // В чем может быть причина неотрисовки.
+      console.log(updatePins()); // Фильтруется
     };
-    window.form.filter.addEventListener('change', onFilter);
+
+    typeSelect.addEventListener('change', onFilterChange);
+    priceSelect.addEventListener('change', onFilterChange);
+    roomsSelect.addEventListener('change', onFilterChange);
+    guestsSelect.addEventListener('change', onFilterChange);
   };
 
   window.filter = {
+    MAX_PINS: MAX_PINS,
     enableFiltration: enableFiltration
   };
 
