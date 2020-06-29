@@ -73,8 +73,7 @@
     var onFilterChange = function () {
       window.utils.hidePopUp();
       window.pin.removePins();
-      window.pin.renderPins(updatePins()); // В чем может быть причина неотрисовки.
-      console.log(updatePins()); // Фильтруется
+      window.map.pinSection.appendChild(window.pin.renderPins(updatePins()));
     };
 
     typeSelect.addEventListener('change', onFilterChange);

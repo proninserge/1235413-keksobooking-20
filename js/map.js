@@ -19,8 +19,6 @@
 
   var pinsFilteredSet;
 
-  var dataPins;
-
   var setAddress = function () {
     window.map.pinMain.style.left = window.form.InitialCoords.x;
     window.map.pinMain.style.top = window.form.InitialCoords.y;
@@ -61,7 +59,7 @@
 
   var createPropertyCard = function (evt) {
     var source = Number(evt.target.dataset.id);
-    var currentPin = dataPins[source];
+    var currentPin = window.map.pinsFilteredSet[source];
     var popup = window.card.createPropertyCardTemplate(currentPin);
     if (popup.classList.contains('hidden')) {
       popup.classList.remove('hidden');
@@ -111,9 +109,6 @@
     window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
     window.filter.enableFiltration(pins);
-    dataPins = window.map.pinsFilteredSet;
-    mapSection.addEventListener('click', onPinClick);
-    mapSection.addEventListener('keydown', onPinEnter);
   };
 
   var setMainPinPosition = function () {
@@ -179,6 +174,9 @@
 
   setMainPinPosition();
 
+  mapSection.addEventListener('click', onPinClick);
+  mapSection.addEventListener('keydown', onPinEnter);
+
   pinMain.addEventListener('mousedown', onWindowClickActivation);
   pinMain.addEventListener('keydown', onWindowEnterActivation);
   pinMain.addEventListener('mousedown', onPinMouseDown);
@@ -189,6 +187,8 @@
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     pinsFilteredSet: pinsFilteredSet,
     setAddress: setAddress,
+    onPinClick: onPinClick,
+    onPinEnter: onPinEnter,
     pinMain: pinMain,
     mapSection: mapSection,
     pinSection: pinSection
