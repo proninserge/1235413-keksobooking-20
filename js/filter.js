@@ -70,11 +70,11 @@
       return updatedPinsData;
     };
 
-    var onFilterChange = function () {
+    var onFilterChange = window.utils.debounce(function () {
       window.utils.hidePopUp();
       window.pin.removePins();
       window.map.pinSection.appendChild(window.pin.renderPins(updatePins()));
-    };
+    });
 
     typeSelect.addEventListener('change', onFilterChange);
     priceSelect.addEventListener('change', onFilterChange);
