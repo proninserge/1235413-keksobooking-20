@@ -36,7 +36,7 @@
   var priceSelect = window.form.filter.querySelector('#housing-price');
   var roomsSelect = window.form.filter.querySelector('#housing-rooms');
   var guestsSelect = window.form.filter.querySelector('#housing-guests');
-  var features = window.form.filter.querySelector('#housing-features');
+  // var features = window.form.filter.querySelector('#housing-features');
 
   var enableFiltration = function (pins) {
     var pinsToRender = pins.slice();

@@ -187,8 +187,6 @@
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     pinsFilteredSet: pinsFilteredSet,
     setAddress: setAddress,
-    onPinClick: onPinClick,
-    onPinEnter: onPinEnter,
     pinMain: pinMain,
     mapSection: mapSection,
     pinSection: pinSection
