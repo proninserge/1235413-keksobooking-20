@@ -86,10 +86,12 @@
   };
 
   var handlePin = function (evt) {
-    evt.preventDefault();
-    createPropertyCard(evt);
-    deactivatePins();
-    activatePin(evt);
+    if (evt.target.dataset.id) { // Убрал обе ошибки.
+      evt.preventDefault();
+      createPropertyCard(evt);
+      deactivatePins();
+      activatePin(evt);
+    }
   };
 
   var onPinClick = function (evt) {
@@ -117,6 +119,8 @@
 
   var onPinMouseDown = function (evt) {
     if (evt.which === window.utils.LEFT_KEY) {
+      window.pin.removePins(); // Здесь и следующая строка - убрал лишнее добавление пинов при клике на главный пин.
+      window.form.filter.reset();
       evt.preventDefault();
       var startCoords = {
         x: evt.clientX,
@@ -169,6 +173,8 @@
 
   var onWindowEnterActivation = function (evt) {
     evt.preventDefault();
+    window.pin.removePins(); // Здесь и следующая строка - убрал лишнее добавление пинов при клике на главный пин.
+    window.form.filter.reset();
     window.utils.onEnterPress(evt, activateWindow);
   };
 

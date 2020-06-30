@@ -111,6 +111,7 @@
     window.map.setAddress();
     window.map.mapSection.classList.add('map--faded');
     adForm.reset();
+    filter.reset();
     setAddressValue();
     disabledFormElements();
   };
