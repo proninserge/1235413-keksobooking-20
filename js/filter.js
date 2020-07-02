@@ -34,7 +34,6 @@
   var roomsSelect = window.form.filter.querySelector('#housing-rooms');
   var guestsSelect = window.form.filter.querySelector('#housing-guests');
   var featuresFieldset = window.form.filter.querySelector('#housing-features');
-  var featureInputs = window.form.filter.querySelectorAll('input[type=checkbox]');
 
   var getFilterType = function (pin) {
     return pin.offer.type === typeSelect.value || typeSelect.value === DEFAULT_FILTER;
@@ -51,15 +50,6 @@
 
   var getFilterGuests = function (pin) {
     return pin.offer.guests === Number(guestsSelect.value) || guestsSelect.value === DEFAULT_FILTER;
-  };
-
-  // Чекает чекбокс. Это вообще нужно делать вручную?
-  var setFilterFeatures = function (evt) {
-    Array.from(featureInputs).forEach(function (featureInput) {
-      if (featureInput.id === evt.target.dataset.id) {
-        featureInput.checked = true;
-      }
-    });
   };
 
   var getFilterFeatures = function (pin) {
@@ -81,26 +71,26 @@
   };
 
   var onFilterChange = window.utils.debounce(function () {
-    window.utils.hidePopUp();
+    window.utils.hidePopup();
     window.pin.removePins();
     window.map.pinSection.appendChild(window.pin.renderPins(updatePins()));
   });
+
+  var disableFiltration = function () {
+    window.form.filter.removeEventListener('change', onFilterChange);
+  };
 
   var enableFiltration = function (pins) {
     pinsToRender = pins.slice();
     window.map.pinsFilteredSet = pinsToRender.slice(0, MAX_PINS);
 
-    typeSelect.addEventListener('change', onFilterChange);
-    priceSelect.addEventListener('change', onFilterChange);
-    roomsSelect.addEventListener('change', onFilterChange);
-    guestsSelect.addEventListener('change', onFilterChange);
-    featuresFieldset.addEventListener('click', onFilterChange);
-    featuresFieldset.addEventListener('click', setFilterFeatures);
+    window.form.filter.addEventListener('change', onFilterChange);
   };
 
   window.filter = {
     MAX_PINS: MAX_PINS,
-    enableFiltration: enableFiltration
+    enable: enableFiltration,
+    disable: disableFiltration
   };
 
 })();

@@ -57,37 +57,38 @@
     window.utils.createErrorMessage(message);
   };
 
+  // Просмотри обработчики в функции ниже. Нужно ли их переделывать?
   var createPropertyCard = function (evt) {
     var source = Number(evt.target.dataset.id);
     var currentPin = window.map.pinsFilteredSet[source];
     var popup = window.card.createPropertyCardTemplate(currentPin);
-    if (popup.classList.contains('hidden')) {
-      popup.classList.remove('hidden');
-    }
     var close = popup.querySelector('.popup__close');
 
     var closePopup = function () {
       popup.classList.add('hidden');
       deactivatePin(evt);
+      close.removeEventListener('click', onCloseClick);
+      document.removeEventListener('keydown', onCloseEsc);
     };
 
     var onCloseClick = function (e) {
       window.utils.onClick(e, closePopup);
-      close.removeEventListener('click', onCloseClick);
     };
 
     var onCloseEsc = function (e) {
       window.utils.onEscPress(e, closePopup);
-      document.removeEventListener('keydown', onCloseClick);
     };
 
-    close.addEventListener('click', onCloseClick);
-    document.addEventListener('keydown', onCloseEsc);
+    if (popup.classList.contains('hidden')) {
+      popup.classList.remove('hidden');
+      close.addEventListener('click', onCloseClick);
+      document.addEventListener('keydown', onCloseEsc);
+    }
   };
 
   var handlePin = function (evt) {
-    if (evt.target.dataset.id) { // Убрал обе ошибки.
-      evt.preventDefault();
+    evt.preventDefault();
+    if (evt.target.dataset.id) {
       createPropertyCard(evt);
       deactivatePins();
       activatePin(evt);
@@ -110,7 +111,15 @@
     pinSection.appendChild(window.pin.renderPins(pins.slice(0, window.filter.MAX_PINS)));
     window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
-    window.filter.enableFiltration(pins);
+    window.filter.enable(pins);
+
+    pinSection.addEventListener('click', onPinClick); // Здесь был обработчик на всю область карты. Он не чекал чекбокс. *facepalm*
+    pinSection.addEventListener('keydown', onPinEnter);
+  };
+
+  var clearPins = function () {
+    mapSection.removeEventListener('click', onPinClick);
+    mapSection.removeEventListener('keydown', onPinEnter);
   };
 
   var setMainPinPosition = function () {
@@ -119,8 +128,6 @@
 
   var onPinMouseDown = function (evt) {
     if (evt.which === window.utils.LEFT_KEY) {
-      window.pin.removePins(); // Здесь и следующая строка - убрал лишнее добавление пинов при клике на главный пин.
-      window.form.filter.reset();
       evt.preventDefault();
       var startCoords = {
         x: evt.clientX,
@@ -162,26 +169,25 @@
 
   var activateWindow = function () {
     mapSection.classList.remove('map--faded');
-    window.form.enableFormElements();
+    window.form.enableElements();
     window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
   };
 
   var onWindowClickActivation = function (evt) {
     evt.preventDefault();
-    window.utils.onClick(evt, activateWindow);
+    if (mapSection.classList.contains('map--faded')) {
+      window.utils.onClick(evt, activateWindow);
+    }
   };
 
   var onWindowEnterActivation = function (evt) {
     evt.preventDefault();
-    window.pin.removePins(); // Здесь и следующая строка - убрал лишнее добавление пинов при клике на главный пин.
-    window.form.filter.reset();
-    window.utils.onEnterPress(evt, activateWindow);
+    if (mapSection.classList.contains('map--faded')) {
+      window.utils.onEnterPress(evt, activateWindow);
+    }
   };
 
   setMainPinPosition();
-
-  mapSection.addEventListener('click', onPinClick);
-  mapSection.addEventListener('keydown', onPinEnter);
 
   pinMain.addEventListener('mousedown', onWindowClickActivation);
   pinMain.addEventListener('keydown', onWindowEnterActivation);
@@ -193,6 +199,7 @@
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
     pinsFilteredSet: pinsFilteredSet,
     setAddress: setAddress,
+    clearPins: clearPins,
     pinMain: pinMain,
     mapSection: mapSection,
     pinSection: pinSection

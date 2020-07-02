@@ -28,7 +28,7 @@
   };
 
   var removePins = function () {
-    var pins = window.map.pinSection.querySelectorAll('button[type="button"]');
+    var pins = window.map.pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
     pins.forEach(function (pin) {
       window.map.pinSection.removeChild(pin);
     });

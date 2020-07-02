@@ -22,7 +22,7 @@
     };
   };
 
-  var hidePopUp = function () {
+  var hidePopup = function () {
     document.querySelector('.popup').classList.add('hidden');
   };
 
@@ -44,7 +44,7 @@
     }
   };
 
-  document.addEventListener('DOMContentLoaded', function () {
+  var loadMessageTemplates = function () {
     var templateSuccess = document.querySelector('#success').content.querySelector('.success');
     var templateError = document.querySelector('#error').content.querySelector('.error');
     var successMessage = templateSuccess.cloneNode(true);
@@ -53,7 +53,9 @@
     errorMessage.classList.add('hidden');
     mainContent.insertAdjacentElement('afterbegin', successMessage);
     mainContent.insertAdjacentElement('afterbegin', errorMessage);
-  });
+
+    document.removeEventListener('DOMContentLoaded', loadMessageTemplates);
+  };
 
   var createSuccessMessage = function () {
     var successPopup = document.querySelector('.success');
@@ -114,6 +116,8 @@
     document.addEventListener('keydown', onDocumentEsc);
   };
 
+  document.addEventListener('DOMContentLoaded', loadMessageTemplates);
+
   window.utils = {
     ESC_KEYCODE: ESC_KEYCODE,
     ENTER_KEYCODE: ENTER_KEYCODE,
@@ -121,7 +125,7 @@
     ERROR: ERROR,
     createSuccessMessage: createSuccessMessage,
     createErrorMessage: createErrorMessage,
-    hidePopUp: hidePopUp,
+    hidePopup: hidePopup,
     onClick: onClick,
     onEnterPress: onEnterPress,
     onEscPress: onEscPress,

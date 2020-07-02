@@ -44,9 +44,7 @@
   };
 
   var disabledFormElements = function () {
-    if (!adForm.classList.contains('ad-form--disabled')) {
-      adForm.classList.add('ad-form--disabled');
-    }
+    adForm.classList.add('ad-form--disabled');
     adFormHeader.disabled = true;
     Array.from(adFormFieldsets).forEach(function (fieldset) {
       fieldset.disabled = true;
@@ -59,12 +57,16 @@
     Array.from(adFormFieldsets).forEach(function (fieldset) {
       fieldset.disabled = false;
     });
+    adForm.addEventListener('submit', onSubmit);
+    adFormReset.addEventListener('click', onFormReset);
+
+    adFormRooms.addEventListener('change', onRoomNumberChange);
+    adFormGuests.addEventListener('change', onGuestNumberChange);
+    adFormType.addEventListener('change', onTypeChange);
+    adFormTime.addEventListener('change', onCheckTimeChange);
   };
 
-  setAddressValue();
-  disabledFormElements();
-
-  var onRoomNumberSelection = function (evt) {
+  var onRoomNumberChange = function (evt) {
     evt.preventDefault();
     var targetValue = Number(evt.target.value);
     adFormGuests.disabled = false;
@@ -82,7 +84,7 @@
     }
   };
 
-  var onGuestNumberSelection = function (evt) {
+  var onGuestNumberChange = function (evt) {
     evt.preventDefault();
     var targetValue = Number(evt.target.value);
     if (targetValue === RoomAndGuestValues.MIN_VALUE) {
@@ -99,19 +101,29 @@
     adFormPrice.placeholder = String(minPrice);
   };
 
+  var priceReset = function () {
+    adFormPrice.min = ApartmentsTypes.FLAT;
+    adFormPrice.placeholder = String(ApartmentsTypes.FLAT);
+  };
+
   var onCheckTimeChange = function (evt) {
     evt.preventDefault();
     adFormTimeout.value = evt.target.value;
     adFormTimein.value = evt.target.value;
   };
 
-  var onFormReset = function () {
+  var onFormReset = function (evt) {
+    evt.preventDefault();
     window.pin.removePins();
-    window.utils.hidePopUp();
-    window.map.setAddress();
+    window.map.clearPins(); // При удалении пинов удаляет обработчики на пинах
+    window.utils.hidePopup();
     window.map.mapSection.classList.add('map--faded');
-    adForm.reset();
     filter.reset();
+    window.filter.disable();
+    adForm.reset();
+    priceReset(); // Обнаружил баг без этой функции
+    clearFormEventListeners(); // Отписка от обработчика сабмит и обработчиков на элементах
+    window.map.setAddress();
     setAddressValue();
     disabledFormElements();
   };
@@ -130,18 +142,22 @@
     evt.preventDefault();
   };
 
-  adForm.addEventListener('submit', onSubmit);
-  adFormReset.addEventListener('click', onFormReset);
+  var clearFormEventListeners = function () {
+    adForm.removeEventListener('submit', onSubmit);
 
-  adFormRooms.addEventListener('change', onRoomNumberSelection);
-  adFormGuests.addEventListener('change', onGuestNumberSelection);
-  adFormType.addEventListener('change', onTypeChange);
-  adFormTime.addEventListener('change', onCheckTimeChange);
+    adFormRooms.removeEventListener('change', onRoomNumberChange);
+    adFormGuests.removeEventListener('change', onGuestNumberChange);
+    adFormType.removeEventListener('change', onTypeChange);
+    adFormTime.removeEventListener('change', onCheckTimeChange);
+  };
+
+  setAddressValue();
+  disabledFormElements();
 
   window.form = {
     filter: filter,
     InitialCoords: InitialCoords,
     setPinAddressValue: setPinAddressValue,
-    enableFormElements: enableFormElements
+    enableElements: enableFormElements
   };
 })();
