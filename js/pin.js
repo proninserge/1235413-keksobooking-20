@@ -19,19 +19,19 @@
 
   var renderPins = function (pins) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < pins.length; i++) {
-      if (pins[i].offer) {
-        fragment.appendChild(createNewPin(pins[i], i));
+    pins.forEach(function (pin, index) {
+      if (pin.offer) {
+        fragment.appendChild(createNewPin(pin, index));
       }
-    }
+    });
     return fragment;
   };
 
   var removePins = function () {
-    var pins = window.map.pinSection.querySelectorAll('button[type="button"]');
-    for (var p = 0; p < pins.length; p++) {
-      window.map.pinSection.removeChild(pins[p]);
-    }
+    var pins = window.map.pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+    pins.forEach(function (pin) {
+      window.map.pinSection.removeChild(pin);
+    });
   };
 
   window.pin = {

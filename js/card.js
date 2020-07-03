@@ -5,6 +5,13 @@
   var NEW_PHOTO_HEIGHT = 40;
   var NEW_PHOTO_ALT = 'Фотография жилья';
 
+  var ApartmentTypes = {
+    BUNGALO: 'Бунгало',
+    FLAT: 'Квартира',
+    HOUSE: 'Дом',
+    PALACE: 'Дворец'
+  };
+
   var templateCard = document.querySelector('#card').content.querySelector('.map__card');
 
   var createPropertyCardTemplate = function (generatedPin) {
@@ -40,7 +47,7 @@
     }
 
     if (generatedPin.offer.type) {
-      newCard.querySelector('.popup__type').textContent = Object.values(generatedPin.offer.type)[0];
+      newCard.querySelector('.popup__type').textContent = ApartmentTypes[generatedPin.offer.type.toUpperCase()];
       newCard.querySelector('.popup__type').classList.remove('hidden');
     } else {
       newCard.querySelector('.popup__type').classList.add('hidden');
@@ -80,14 +87,14 @@
     featuresList.innerHTML = '';
     var features = generatedPin.offer.features;
     if (features.length !== 0) {
-      for (var n = 0; n < features.length; n++) {
+      features.forEach(function (feature) {
         var newItem = document.createElement('li');
         newItem.classList.add('popup__feature');
-        var newClass = 'popup__feature--' + features[n];
+        var newClass = 'popup__feature--' + feature;
         newItem.classList.add(newClass);
         featuresList.appendChild(newItem);
         featuresList.classList.remove('hidden');
-      }
+      });
     } else {
       featuresList.classList.add('hidden');
     }
@@ -100,16 +107,16 @@
     photosList.innerHTML = '';
     var photos = generatedPin.offer.photos;
     if (photos.length !== 0) {
-      for (var p = 0; p < photos.length; p++) {
+      photos.forEach(function (photo) {
         var newPhoto = document.createElement('img');
         newPhoto.classList.add('popup__photo');
         newPhoto.width = NEW_PHOTO_WIDTH;
         newPhoto.height = NEW_PHOTO_HEIGHT;
         newPhoto.alt = NEW_PHOTO_ALT;
-        newPhoto.src = photos[p];
+        newPhoto.src = photo;
         photosList.appendChild(newPhoto);
         photosList.classList.remove('hidden');
-      }
+      });
     } else {
       photosList.classList.add('hidden');
     }

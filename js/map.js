@@ -17,7 +17,7 @@
     MAX_Y: 630
   };
 
-  var dataPins;
+  var pinsFilteredSet;
 
   var setAddress = function () {
     window.map.pinMain.style.left = window.form.InitialCoords.x;
@@ -46,48 +46,80 @@
     }
   };
 
+  var deactivatePins = function () {
+    var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
+    Array.from(pins).forEach(function (pin) {
+      pin.classList.remove('map__pin--active');
+    });
+  };
+
   var onError = function (message) {
     window.utils.createErrorMessage(message);
   };
 
+  // Просмотри обработчики в функции ниже. Нужно ли их переделывать?
   var createPropertyCard = function (evt) {
     var source = Number(evt.target.dataset.id);
-    var currentPin = dataPins[source];
+    var currentPin = window.map.pinsFilteredSet[source];
     var popup = window.card.createPropertyCardTemplate(currentPin);
+    var close = popup.querySelector('.popup__close');
+
+    var closePopup = function () {
+      popup.classList.add('hidden');
+      deactivatePin(evt);
+      close.removeEventListener('click', onCloseClick);
+      document.removeEventListener('keydown', onCloseEsc);
+    };
+
+    var onCloseClick = function (e) {
+      window.utils.onClick(e, closePopup);
+    };
+
+    var onCloseEsc = function (e) {
+      window.utils.onEscPress(e, closePopup);
+    };
+
     if (popup.classList.contains('hidden')) {
       popup.classList.remove('hidden');
+      close.addEventListener('click', onCloseClick);
+      document.addEventListener('keydown', onCloseEsc);
     }
-    var close = popup.querySelector('.popup__close');
-    var closeCard = function (e) {
-      if (e.which === window.utils.LEFT_KEY || e.keyCode === window.utils.ESC_KEYCODE) {
-        popup.classList.add('hidden');
-        deactivatePin(evt);
-        close.removeEventListener('click', closeCard);
-        document.removeEventListener('keydown', closeCard);
-      }
-    };
-    close.addEventListener('click', closeCard);
-    document.addEventListener('keydown', closeCard);
   };
 
-  var onPinClick = function (evt) {
-    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
-      evt.preventDefault();
+  var handlePin = function (evt) {
+    evt.preventDefault();
+    if (evt.target.dataset.id) {
       createPropertyCard(evt);
-      var pins = pinSection.querySelectorAll('.map__pin:not(.map__pin--main)');
-      for (var i = 0; i < pins.length; i++) {
-        pins[i].classList.remove('map__pin--active');
-      }
+      deactivatePins();
       activatePin(evt);
     }
   };
 
+  var onPinClick = function (evt) {
+    if (evt.which === window.utils.LEFT_KEY) {
+      handlePin(evt);
+    }
+  };
+
+  var onPinEnter = function (evt) {
+    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+      handlePin(evt);
+    }
+  };
+
   var onSuccess = function (pins) {
-    pinSection.appendChild(window.pin.renderPins(pins));
+    pinSection.appendChild(window.pin.renderPins(pins.slice(0, window.filter.MAX_PINS)));
+    window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
-    dataPins = pins;
-    mapSection.addEventListener('click', onPinClick);
-    mapSection.addEventListener('keydown', onPinClick);
+    window.filter.enable(pins);
+
+    pinSection.addEventListener('click', onPinClick); // Здесь был обработчик на всю область карты. Он не чекал чекбокс. *facepalm*
+    pinSection.addEventListener('keydown', onPinEnter);
+  };
+
+  var clearPins = function () {
+    mapSection.removeEventListener('click', onPinClick);
+    mapSection.removeEventListener('keydown', onPinEnter);
   };
 
   var setMainPinPosition = function () {
@@ -135,26 +167,39 @@
     }
   };
 
-  var onWindowActivation = function (evt) {
-    if (evt.which === window.utils.LEFT_KEY || evt.keyCode === window.utils.ENTER_KEYCODE) {
-      evt.preventDefault();
-      mapSection.classList.remove('map--faded');
-      window.form.enableFormElements();
-      window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
+  var activateWindow = function () {
+    mapSection.classList.remove('map--faded');
+    window.form.enableElements();
+    window.server.download('https://javascript.pages.academy/keksobooking/data', onSuccess, onError);
+  };
+
+  var onWindowClickActivation = function (evt) {
+    evt.preventDefault();
+    if (mapSection.classList.contains('map--faded')) {
+      window.utils.onClick(evt, activateWindow);
+    }
+  };
+
+  var onWindowEnterActivation = function (evt) {
+    evt.preventDefault();
+    if (mapSection.classList.contains('map--faded')) {
+      window.utils.onEnterPress(evt, activateWindow);
     }
   };
 
   setMainPinPosition();
 
-  pinMain.addEventListener('mousedown', onWindowActivation);
-  pinMain.addEventListener('keydown', onWindowActivation);
+  pinMain.addEventListener('mousedown', onWindowClickActivation);
+  pinMain.addEventListener('keydown', onWindowEnterActivation);
   pinMain.addEventListener('mousedown', onPinMouseDown);
 
   window.map = {
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
     MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
+    pinsFilteredSet: pinsFilteredSet,
     setAddress: setAddress,
+    clearPins: clearPins,
     pinMain: pinMain,
     mapSection: mapSection,
     pinSection: pinSection

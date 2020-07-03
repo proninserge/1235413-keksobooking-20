@@ -26,11 +26,14 @@
   var adFormTimein = adForm.querySelector('#timein');
   var adFormTimeout = adForm.querySelector('#timeout');
   var adFormGuestsOptions = adFormGuests.querySelectorAll('option');
+  var filter = document.querySelector('.map__filters');
 
   var InitialCoords = {
     x: window.map.pinMain.style.left,
     y: window.map.pinMain.style.top
   };
+
+  filter.classList.add('hidden');
 
   var setAddressValue = function () {
     adFormAddress.value = Math.floor(window.map.pinMain.offsetLeft + window.map.MAIN_PIN_WIDTH / 2) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.MAIN_PIN_HEIGHT / 2);
@@ -41,45 +44,47 @@
   };
 
   var disabledFormElements = function () {
-    if (!adForm.classList.contains('ad-form--disabled')) {
-      adForm.classList.add('ad-form--disabled');
-    }
+    adForm.classList.add('ad-form--disabled');
     adFormHeader.disabled = true;
-    for (var f = 0; f < adFormFieldsets.length; f++) {
-      adFormFieldsets[f].disabled = true;
-    }
+    Array.from(adFormFieldsets).forEach(function (fieldset) {
+      fieldset.disabled = true;
+    });
   };
 
   var enableFormElements = function () {
     adForm.classList.remove('ad-form--disabled');
     adFormHeader.disabled = false;
-    for (var n = 0; n < adFormFieldsets.length; n++) {
-      adFormFieldsets[n].disabled = false;
-    }
+    Array.from(adFormFieldsets).forEach(function (fieldset) {
+      fieldset.disabled = false;
+    });
+    adForm.addEventListener('submit', onSubmit);
+    adFormReset.addEventListener('click', onFormReset);
+
+    adFormRooms.addEventListener('change', onRoomNumberChange);
+    adFormGuests.addEventListener('change', onGuestNumberChange);
+    adFormType.addEventListener('change', onTypeChange);
+    adFormTime.addEventListener('change', onCheckTimeChange);
   };
 
-  setAddressValue();
-  disabledFormElements();
-
-  var onRoomNumberSelection = function (evt) {
+  var onRoomNumberChange = function (evt) {
     evt.preventDefault();
     var targetValue = Number(evt.target.value);
     adFormGuests.disabled = false;
-    for (var o = 0; o < adFormGuestsOptions.length; o++) {
-      if (targetValue < adFormGuestsOptions[o].value) {
+    Array.from(adFormGuestsOptions).forEach(function (adFormGuestsOption) {
+      if (targetValue < adFormGuestsOption.value) {
         adFormGuests.value = targetValue;
-        adFormGuestsOptions[o].disabled = true;
+        adFormGuestsOption.disabled = true;
       } else {
-        adFormGuestsOptions[o].disabled = false;
+        adFormGuestsOption.disabled = false;
       }
-    }
+    });
     if (targetValue === RoomAndGuestValues.MAX_VALUE) {
       adFormGuests.value = RoomAndGuestValues.MIN_VALUE;
       adFormGuests.disabled = true;
     }
   };
 
-  var onGuestNumberSelection = function (evt) {
+  var onGuestNumberChange = function (evt) {
     evt.preventDefault();
     var targetValue = Number(evt.target.value);
     if (targetValue === RoomAndGuestValues.MIN_VALUE) {
@@ -96,18 +101,29 @@
     adFormPrice.placeholder = String(minPrice);
   };
 
+  var priceReset = function () {
+    adFormPrice.min = ApartmentsTypes.FLAT;
+    adFormPrice.placeholder = String(ApartmentsTypes.FLAT);
+  };
+
   var onCheckTimeChange = function (evt) {
     evt.preventDefault();
     adFormTimeout.value = evt.target.value;
     adFormTimein.value = evt.target.value;
   };
 
-  var onFormReset = function () {
+  var onFormReset = function (evt) {
+    evt.preventDefault();
     window.pin.removePins();
-    window.utils.hidePopUp();
-    window.map.setAddress();
+    window.map.clearPins(); // При удалении пинов удаляет обработчики на пинах
+    window.utils.hidePopup();
     window.map.mapSection.classList.add('map--faded');
+    filter.reset();
+    window.filter.disable();
     adForm.reset();
+    priceReset(); // Обнаружил баг без этой функции
+    clearFormEventListeners(); // Отписка от обработчика сабмит и обработчиков на элементах
+    window.map.setAddress();
     setAddressValue();
     disabledFormElements();
   };
@@ -126,17 +142,22 @@
     evt.preventDefault();
   };
 
-  adForm.addEventListener('submit', onSubmit);
-  adFormReset.addEventListener('click', onFormReset);
+  var clearFormEventListeners = function () {
+    adForm.removeEventListener('submit', onSubmit);
 
-  adFormRooms.addEventListener('change', onRoomNumberSelection);
-  adFormGuests.addEventListener('change', onGuestNumberSelection);
-  adFormType.addEventListener('change', onTypeChange);
-  adFormTime.addEventListener('change', onCheckTimeChange);
+    adFormRooms.removeEventListener('change', onRoomNumberChange);
+    adFormGuests.removeEventListener('change', onGuestNumberChange);
+    adFormType.removeEventListener('change', onTypeChange);
+    adFormTime.removeEventListener('change', onCheckTimeChange);
+  };
+
+  setAddressValue();
+  disabledFormElements();
 
   window.form = {
+    filter: filter,
     InitialCoords: InitialCoords,
     setPinAddressValue: setPinAddressValue,
-    enableFormElements: enableFormElements
+    enableElements: enableFormElements
   };
 })();
