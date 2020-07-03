@@ -126,6 +126,8 @@
     window.map.setAddress();
     setAddressValue();
     disabledFormElements();
+    window.imageLoading.disable();
+    window.imageLoading.remove();
   };
 
   var onError = function () {

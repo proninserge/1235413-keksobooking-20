@@ -112,6 +112,7 @@
     window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
     window.filter.enable(pins);
+    window.imageLoading.enable();
 
     pinSection.addEventListener('click', onPinClick); // Здесь был обработчик на всю область карты. Он не чекал чекбокс. *facepalm*
     pinSection.addEventListener('keydown', onPinEnter);
