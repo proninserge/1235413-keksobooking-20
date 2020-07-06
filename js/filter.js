@@ -72,8 +72,8 @@
 
   var onFilterChange = window.utils.debounce(function () {
     window.utils.hidePopup();
-    window.pin.removePins();
-    window.map.pinSection.appendChild(window.pin.renderPins(updatePins()));
+    window.pin.removeAll();
+    window.map.pinSection.appendChild(window.pin.renderAll(updatePins()));
   });
 
   var disableFiltration = function () {

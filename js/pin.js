@@ -35,7 +35,7 @@
   };
 
   window.pin = {
-    renderPins: renderPins,
-    removePins: removePins
+    renderAll: renderPins,
+    removeAll: removePins
   };
 })();

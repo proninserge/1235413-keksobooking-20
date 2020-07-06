@@ -125,6 +125,6 @@
   };
 
   window.card = {
-    createPropertyCardTemplate: createPropertyCardTemplate
+    create: createPropertyCardTemplate
   };
 })();

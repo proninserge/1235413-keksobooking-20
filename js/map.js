@@ -17,15 +17,13 @@
     MAX_Y: 630
   };
 
-  var pinsFilteredSet;
-
   var setAddress = function () {
     window.map.pinMain.style.left = window.form.InitialCoords.x;
     window.map.pinMain.style.top = window.form.InitialCoords.y;
   };
 
   var createCardOnFirstLoad = function (pins) {
-    var popup = window.card.createPropertyCardTemplate(pins[0]);
+    var popup = window.card.create(pins[0]);
     popup.classList.add('hidden');
     mapSection.insertBefore(popup, filtersContainer);
   };
@@ -57,32 +55,31 @@
     window.utils.createErrorMessage(message);
   };
 
-  // Просмотри обработчики в функции ниже. Нужно ли их переделывать?
   var createPropertyCard = function (evt) {
     var source = Number(evt.target.dataset.id);
     var currentPin = window.map.pinsFilteredSet[source];
-    var popup = window.card.createPropertyCardTemplate(currentPin);
+    var popup = window.card.create(currentPin);
     var close = popup.querySelector('.popup__close');
 
     var closePopup = function () {
       popup.classList.add('hidden');
       deactivatePin(evt);
       close.removeEventListener('click', onCloseClick);
-      document.removeEventListener('keydown', onCloseEsc);
+      document.removeEventListener('keydown', onEscPress);
     };
 
     var onCloseClick = function (e) {
       window.utils.onClick(e, closePopup);
     };
 
-    var onCloseEsc = function (e) {
+    var onEscPress = function (e) {
       window.utils.onEscPress(e, closePopup);
     };
 
     if (popup.classList.contains('hidden')) {
       popup.classList.remove('hidden');
       close.addEventListener('click', onCloseClick);
-      document.addEventListener('keydown', onCloseEsc);
+      document.addEventListener('keydown', onEscPress);
     }
   };
 
@@ -108,13 +105,13 @@
   };
 
   var onSuccess = function (pins) {
-    pinSection.appendChild(window.pin.renderPins(pins.slice(0, window.filter.MAX_PINS)));
+    pinSection.appendChild(window.pin.renderAll(pins.slice(0, window.filter.MAX_PINS)));
     window.form.filter.classList.remove('hidden');
     createCardOnFirstLoad(pins);
     window.filter.enable(pins);
     window.imageLoading.enable();
 
-    pinSection.addEventListener('click', onPinClick); // Здесь был обработчик на всю область карты. Он не чекал чекбокс. *facepalm*
+    pinSection.addEventListener('click', onPinClick);
     pinSection.addEventListener('keydown', onPinEnter);
   };
 
@@ -151,7 +148,7 @@
           pinMain.style.top = pinY + 'px';
           pinMain.style.left = pinX + 'px';
         } else {
-          pinMain.removeEventListener('mousemove', onPinMove); // изменить далее по заданию
+          document.removeEventListener('mousemove', onPinMove);
         }
         window.form.setPinAddressValue();
       };
@@ -159,12 +156,12 @@
       var onPinMouseUp = function (upEvt) {
         upEvt.preventDefault();
         window.form.setPinAddressValue();
-        pinMain.removeEventListener('mousemove', onPinMove);
-        pinMain.removeEventListener('mouseup', onPinMouseUp);
+        document.removeEventListener('mousemove', onPinMove);
+        document.removeEventListener('mouseup', onPinMouseUp);
       };
 
-      pinMain.addEventListener('mousemove', onPinMove);
-      pinMain.addEventListener('mouseup', onPinMouseUp);
+      document.addEventListener('mousemove', onPinMove);
+      document.addEventListener('mouseup', onPinMouseUp);
     }
   };
 
@@ -198,7 +195,7 @@
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
     MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
     MAIN_PIN_AFTER_HEIGHT: MAIN_PIN_AFTER_HEIGHT,
-    pinsFilteredSet: pinsFilteredSet,
+    pinsFilteredSet: [],
     setAddress: setAddress,
     clearPins: clearPins,
     pinMain: pinMain,
