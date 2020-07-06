@@ -61,7 +61,6 @@
     adFormReset.addEventListener('click', onFormReset);
 
     adFormRooms.addEventListener('change', onRoomNumberChange);
-    adFormGuests.addEventListener('change', onGuestNumberChange);
     adFormType.addEventListener('change', onTypeChange);
     adFormTime.addEventListener('change', onCheckTimeChange);
   };
@@ -71,7 +70,7 @@
     var targetValue = Number(evt.target.value);
     adFormGuests.disabled = false;
     Array.from(adFormGuestsOptions).forEach(function (adFormGuestsOption) {
-      if (targetValue < adFormGuestsOption.value) {
+      if (targetValue < adFormGuestsOption.value || Number(adFormGuestsOption.value) === 0) {
         adFormGuests.value = targetValue;
         adFormGuestsOption.disabled = true;
       } else {
@@ -80,15 +79,6 @@
     });
     if (targetValue === RoomAndGuestValues.MAX_VALUE) {
       adFormGuests.value = RoomAndGuestValues.MIN_VALUE;
-      adFormGuests.disabled = true;
-    }
-  };
-
-  var onGuestNumberChange = function (evt) {
-    evt.preventDefault();
-    var targetValue = Number(evt.target.value);
-    if (targetValue === RoomAndGuestValues.MIN_VALUE) {
-      adFormRooms.value = RoomAndGuestValues.MAX_VALUE;
       adFormGuests.disabled = true;
     }
   };
@@ -152,7 +142,6 @@
     adForm.removeEventListener('submit', onSubmit);
 
     adFormRooms.removeEventListener('change', onRoomNumberChange);
-    adFormGuests.removeEventListener('change', onGuestNumberChange);
     adFormType.removeEventListener('change', onTypeChange);
     adFormTime.removeEventListener('change', onCheckTimeChange);
   };
