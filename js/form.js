@@ -112,20 +112,26 @@
     adFormTimein.value = evt.target.value;
   };
 
-  var onFormReset = function (evt) {
-    evt.preventDefault();
-    window.pin.removePins();
-    window.map.clearPins(); // При удалении пинов удаляет обработчики на пинах
+  var formReset = function () {
+    window.pin.removeAll();
+    window.map.clearPins();
     window.utils.hidePopup();
     window.map.mapSection.classList.add('map--faded');
     filter.reset();
     window.filter.disable();
     adForm.reset();
-    priceReset(); // Обнаружил баг без этой функции
-    clearFormEventListeners(); // Отписка от обработчика сабмит и обработчиков на элементах
+    priceReset();
+    clearFormEventListeners();
     window.map.setAddress();
     setAddressValue();
     disabledFormElements();
+    window.imageLoading.disable();
+    window.imageLoading.remove();
+  };
+
+  var onFormReset = function (evt) {
+    evt.preventDefault();
+    formReset();
   };
 
   var onError = function () {
@@ -133,7 +139,7 @@
   };
 
   var onSuccess = function () {
-    onFormReset();
+    formReset();
     window.utils.createSuccessMessage();
   };
 
