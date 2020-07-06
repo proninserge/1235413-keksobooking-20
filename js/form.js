@@ -70,7 +70,7 @@
     var targetValue = Number(evt.target.value);
     adFormGuests.disabled = false;
     Array.from(adFormGuestsOptions).forEach(function (adFormGuestsOption) {
-      if (targetValue < adFormGuestsOption.value || Number(adFormGuestsOption.value) === 0) {
+      if (targetValue < Number(adFormGuestsOption.value) || Number(adFormGuestsOption.value) === RoomAndGuestValues.MIN_VALUE) {
         adFormGuests.value = targetValue;
         adFormGuestsOption.disabled = true;
       } else {
